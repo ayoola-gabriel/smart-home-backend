@@ -292,4 +292,8 @@ def handle_toggle_ack(data):
     
 if __name__ == "__main__":
     import os
+    with app.app_context():
+        db.create_all()
+        print(f"Tables created")
+        
     socketio.run(app, host="0.0.0.0", debug=True, port=int(os.environ.get("PORT", 5000)))
