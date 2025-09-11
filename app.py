@@ -297,8 +297,8 @@ if __name__ == "__main__":
     
     # app, socketio = create_app()
     eventlet.monkey_patch()
-    with app.app_context():
-        db.create_all()
-        print(f"Tables created")
+    # with app.app_context():
+    #     db.create_all()
+    #     print(f"Tables created")
         
     socketio.run(app, host="0.0.0.0", debug=True, port=int(os.environ.get("PORT", 5000)))
