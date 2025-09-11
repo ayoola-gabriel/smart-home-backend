@@ -1,3 +1,6 @@
+import eventlet
+eventlet.monkey_patch()
+
 import os, random
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
@@ -6,8 +9,8 @@ from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 
 
-API_KEY = "7d0f3f9a6f9b1c2d4e7a8f5b2e9c3f0a7d6e8b4c"
-baseURL = "http://127.0.0.1:5000"
+API_KEY = ""
+# baseURL = "http://127.0.0.1:5000"
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = API_KEY

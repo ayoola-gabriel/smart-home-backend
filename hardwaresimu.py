@@ -2,7 +2,9 @@ import requests
 import random
 import time
 import socketio
-from app import baseURL
+# from app import baseURL
+
+baseURL = "https://smart-home-backend-fy58.onrender.com/"
 
 sio = socketio.Client()
 
