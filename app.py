@@ -288,4 +288,5 @@ def handle_toggle_ack(data):
     emit("toggle_ack_update", data, broadcast=True)
     
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", debug=True, port=5000)
+    import os
+    socketio.run(app, host="0.0.0.0", debug=True, port=int(os.environ.get("PORT", 5000)))
