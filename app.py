@@ -276,7 +276,7 @@ def handle_hardware_data(data):
             "current_history":current_history
         }
     
-    emit("hardware_update", payload)
+    emit("hardware_update", payload, broadcast=True)
     
 @socketio.on("esp32_connected")
 def handleESP32_connected(data):
