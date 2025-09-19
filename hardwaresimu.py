@@ -2,11 +2,16 @@ import requests
 import random
 import time
 import socketio
-# from app import baseURL
+from app import baseURL
 
-baseURL = "https://smart-home-backend-fy58.onrender.com/"
+deviceId  = "qwertyuiop"
+# baseURL = "https://smart-home-backend-fy58.onrender.com/"
+hardwareURL = baseURL + "/?device_id=" + deviceId
 
 sio = socketio.Client()
+
+# Simulated persistent storage (like Preferences on ESP32)
+rooms_saved = "Living Room,Bedroom,Dining Room,Attic"
 
 # Relay state in binary string (8 switches)
 relay_state = list("00000000")  # Start with all OFF
@@ -39,7 +44,7 @@ def generate_measurements():
 def connect():
     print("Hardware Connected to server")
     # Optionally send an initial handshake message
-    sio.emit("esp32_connected", {'device_id': "HomeBoard1v00"})
+    sio.emit("esp32_connected", {'device_id': deviceId})
 
 # Event: Disconnected
 @sio.event
@@ -85,9 +90,27 @@ def send_hardware_data():
         # print(f"📡 Sent hardware_update: {measurements}, relay_state: {''.join(relay_state)}")
         
         time.sleep(10)  # Every 5 seconds   
+        
+@sio.on("get_rooms")
+def on_get_rooms(data):
+    """Handle server request for rooms"""
+    print("📥 Received get_rooms request")
+    # Reply with the stored rooms
+    sio.emit("rooms_response", {
+        "device_id": deviceId,
+        "rooms_saved": rooms_saved
+    })
+    print(f"📤 Sent rooms_response: {rooms_saved}")
+
+@sio.on("save-rooms")
+def on_save_rooms(data):
+    rooms = data
+    global rooms_saved
+    rooms_saved = rooms
+    print(f"New rooms saved: {rooms_saved}")
 
 # Connect to the server
-sio.connect(baseURL)
+sio.connect(hardwareURL)
 
 # Start sending hardware data
 send_hardware_data()
