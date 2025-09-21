@@ -8,18 +8,11 @@ from datetime import datetime, timezone
 from flask_socketio import SocketIO, emit, join_room
 from flask_cors import CORS
 
-
-API_KEY = ""
-baseURL = "http://127.0.0.1:5000"
-# baseURL = "https://smart-home-backend-fy58.onrender.com/"
-
 app = Flask(__name__)
-app.config['SECRET_KEY'] = API_KEY
 CORS(app, resources={r"/*":{"origins":"*"}})
 socketio = SocketIO(
     app, 
     cors_allowed_origins="*", 
-    # transport=["websocket"]
     )
 
 @app.route("/")
@@ -38,7 +31,6 @@ def handle_rooms_response(data):
     
 @app.route("/get-rooms/<device_id>")
 def get_rooms(device_id):
-    # print("Rooms")
     # Ask ESP32 for rooms
     socketio.emit("get_rooms", {"request": True}, room=device_id)
 
@@ -58,7 +50,6 @@ def handle_relay_states_response(data):
     relay_states = data.get("relay_states")
     if not device_id or not relay_states:
         return
-    # emit("hardware_online", room=device_id)
     relay_states_cache[device_id] = relay_states
     print(f"📦 Relay states from {device_id}: {relay_states}")
 
@@ -69,7 +60,7 @@ def get_relay_states(device_id):
 
     import time
     # wait briefly for hardware to respond
-    for _ in range(10):  # up to 1s
+    for _ in range(100):  # up to 1s
         if device_id in relay_states_cache:
             state_str = relay_states_cache[device_id]
             relay_dict = db_state_to_dict(state_str)
@@ -110,8 +101,6 @@ def connected():
     if device_id:
         join_room(device_id)
         print(f"📡 Device {device_id} joined room {device_id}")
-        # print(request.sid)
-        # print("client has connected")
         emit("connected_message",{"data":f"id: {request.sid} is connected"})
     else:
         print("⚠️ Client connected without device_id")
@@ -126,7 +115,6 @@ def disconnected():
 def handle_toggle_update(data):
     device_id = data.get("device_id")
     updates = data.get("updates", {})
-    # print(f"Toggle update received: {data}")
     
     if not device_id or not updates:
         return
@@ -136,7 +124,7 @@ def handle_toggle_update(data):
     
 @socketio.on("hardware_data")
 def handle_hardware_data(data):
-    device_id = request.args.get("device_id")
+    device_id = data.get("device_id")
     
     if not device_id:
         print(f"No ID is request")
@@ -173,10 +161,6 @@ def handleESP32_connected(data):
     
     emit("hardware_online", room=device_id)
     
-@socketio.on("get_hard_status")
-def get_status(data):
-    print(f"Trying to check for hardware status {data}")
-    
 @socketio.on("toggle_ack")
 def handle_toggle_ack(data):
     device_id = request.args.get("device_id")
@@ -186,12 +170,5 @@ def handle_toggle_ack(data):
     emit("toggle_ack_update", data, room=device_id)
     
 if __name__ == "__main__":
-    # import os
-    
-    # app, socketio = create_app()
-    
-    # with app.app_context():
-    #     db.create_all()
-    #     print(f"Tables created")
         
     socketio.run(app, host="0.0.0.0", debug=True, port=int(os.environ.get("PORT", 5000)))
