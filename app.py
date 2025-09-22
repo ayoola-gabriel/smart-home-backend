@@ -25,7 +25,7 @@ def handle_rooms_response(data):
     device_id = data.get("device_id")
     rooms = data.get("rooms_saved")
     rooms_cache[device_id] = rooms
-    print(f"📦 Got rooms from {device_id}: {rooms}")
+    # print(f"📦 Got rooms from {device_id}: {rooms}")
     
 @app.route("/get-rooms/<device_id>")
 def get_rooms(device_id):
@@ -49,7 +49,7 @@ def handle_relay_states_response(data):
     if not device_id or not relay_states:
         return
     relay_states_cache[device_id] = relay_states
-    print(f"📦 Relay states from {device_id}: {relay_states}")
+    # print(f"📦 Relay states from {device_id}: {relay_states}")
 
 
 @app.route("/get-relay-states/<device_id>")
@@ -78,7 +78,7 @@ def save_rooms(device_id):
     else:
         rooms_str = str(rooms)
         
-    print(f"Room Received: {rooms_str}")
+    # print(f"Room Received: {rooms_str}")
     socketio.emit("save_rooms", {"rooms":rooms}, room=device_id)
 
     return jsonify({"success": True, "rooms_saved": rooms_str})
@@ -98,7 +98,7 @@ def connected():
     device_id = request.args.get("device_id")
     if device_id:
         join_room(device_id)
-        print(f"📡 Device {device_id} joined room {device_id}")
+        # print(f"📡 Device {device_id} joined room {device_id}")
         emit("connected_message",{"data":f"id: {request.sid} is connected"})
     else:
         print("⚠️ Client connected without device_id")
@@ -106,7 +106,7 @@ def connected():
 @socketio.on("disconnect")
 def disconnected():
     """event listener when client disconnects to the server"""
-    print("user disconnected")
+    # print("user disconnected")
     emit("disconnect_message",f"user {request.sid} disconnected",broadcast=True)
 
 @socketio.on("toggle_update")
@@ -125,11 +125,9 @@ def handle_hardware_data(data):
     device_id = data.get("device_id")
     
     if not device_id:
-        print(f"No ID is request")
         return
-    # print(f"📥 Hardware data: {data}")
+    
     measurements = data['measurements']
-    # relay = data['relay_states']
     voltage = float(measurements.get('voltage', 0))
     current = float(measurements.get("current", 0))
     total_load = float(measurements.get("total_load", 0))
@@ -164,7 +162,6 @@ def handle_toggle_ack(data):
     device_id = request.args.get("device_id")
     if not device_id:
         return
-    print(f"{data}")
     emit("toggle_ack_update", data, room=device_id)
     
 if __name__ == "__main__":
