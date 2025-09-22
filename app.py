@@ -150,7 +150,7 @@ def handle_hardware_data(data):
             },
         }
         
-    
+    print(f"Updating Hardware {device_id} with payload: {payload}")
     emit("hardware_update", payload, room=device_id)
     
 @socketio.on("esp32_connected")
