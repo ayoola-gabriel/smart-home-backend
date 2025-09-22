@@ -37,7 +37,7 @@ def get_rooms(device_id):
     for _ in range(100):  # wait up to 1s
         if device_id in rooms_cache:
             return jsonify({"rooms_saved": rooms_cache[device_id]})
-        time.sleep(0.1)
+        socketio.sleep(0.1)
     
     return jsonify({"error": "device not responding"}), 504
 
@@ -63,7 +63,7 @@ def get_relay_states(device_id):
             state_str = relay_states_cache[device_id]
             relay_dict = db_state_to_dict(state_str)
             return jsonify({"relay_states": relay_dict})
-        time.sleep(0.1)
+        socketio.sleep(0.1)
     
     return jsonify({"error": "device not responding"}), 504
 
