@@ -24,8 +24,10 @@ relay_states_cache = {}
 def handle_rooms_response(data):
     device_id = data.get("device_id")
     rooms = data.get("rooms_saved")
+    if not device_id or not rooms:
+        return
     rooms_cache[device_id] = rooms
-    # print(f"📦 Got rooms from {device_id}: {rooms}")
+    print(f"📦 Got rooms from {device_id}: {rooms}")
     
 @app.route("/get-rooms/<device_id>")
 def get_rooms(device_id):
@@ -46,10 +48,12 @@ def get_rooms(device_id):
 def handle_relay_states_response(data):
     device_id = data.get("device_id")
     relay_states = data.get("relay_states")
+    rooms_saved = data.get("rooms_saved")
     if not device_id or not relay_states:
         return
     relay_states_cache[device_id] = relay_states
-    # print(f"📦 Relay states from {device_id}: {relay_states}")
+    rooms_cache[device_id] = rooms_saved
+    print(f"📦 states from {device_id} => Relay states: {relay_states}, Rooms:{rooms_saved}")
 
 
 @app.route("/get-relay-states/<device_id>")
@@ -62,7 +66,7 @@ def get_relay_states(device_id):
         if device_id in relay_states_cache:
             state_str = relay_states_cache[device_id]
             relay_dict = db_state_to_dict(state_str)
-            return jsonify({"relay_states": relay_dict})
+            return jsonify({"relay_states": relay_dict, "rooms_saved":rooms_cache[device_id]})
         socketio.sleep(0.1)
     
     return jsonify({"error": "device not responding"}), 504
@@ -153,6 +157,7 @@ def handle_hardware_data(data):
 def handleESP32_connected(data):
     device_id = data.get("device_id")
     if not device_id:
+        print(f"No Device ID in Hardware")
         return
     
     emit("hardware_online", room=device_id)
@@ -166,4 +171,4 @@ def handle_toggle_ack(data):
     
 if __name__ == "__main__":
         
-    socketio.run(app, host="0.0.0.0", debug=True, port=int(os.environ.get("PORT", 5000)))
+    socketio.run(app, debug=True, port=int(os.environ.get("PORT", 5000)))
