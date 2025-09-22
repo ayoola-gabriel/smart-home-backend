@@ -27,7 +27,7 @@ def handle_rooms_response(data):
     if not device_id or not rooms:
         return
     rooms_cache[device_id] = rooms
-    print(f"📦 Got rooms from {device_id}: {rooms}")
+    # print(f"📦 Got rooms from {device_id}: {rooms}")
     
 @app.route("/get-rooms/<device_id>")
 def get_rooms(device_id):
@@ -53,7 +53,9 @@ def handle_relay_states_response(data):
         return
     relay_states_cache[device_id] = relay_states
     rooms_cache[device_id] = rooms_saved
-    print(f"📦 states from {device_id} => Relay states: {relay_states}, Rooms:{rooms_saved}")
+    emit("hardware_online", room=device_id)
+    
+    # print(f"📦 states from {device_id} => Relay states: {relay_states}, Rooms:{rooms_saved}")
 
 
 @app.route("/get-relay-states/<device_id>")
@@ -150,7 +152,7 @@ def handle_hardware_data(data):
             },
         }
         
-    print(f"Updating Hardware {device_id} with payload: {payload}")
+    # print(f"Updating Hardware {device_id} with payload: {payload}")
     emit("hardware_update", payload, room=device_id)
     
 @socketio.on("esp32_connected")
