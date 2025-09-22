@@ -98,7 +98,7 @@ def connected():
     device_id = request.args.get("device_id")
     if device_id:
         join_room(device_id)
-        # print(f"📡 Device {device_id} joined room {device_id}")
+        print(f"📡 Device {device_id} joined room {device_id}")
         emit("connected_message",{"data":f"id: {request.sid} is connected"})
     else:
         print("⚠️ Client connected without device_id")
@@ -151,7 +151,7 @@ def handle_hardware_data(data):
     
 @socketio.on("esp32_connected")
 def handleESP32_connected(data):
-    device_id = request.args.get("device_id")
+    device_id = data.get("device_id")
     if not device_id:
         return
     
