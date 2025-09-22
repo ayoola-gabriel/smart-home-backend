@@ -23,6 +23,8 @@ relay_states_cache = {}
 @socketio.on("rooms_response")
 def handle_rooms_response(data):
     device_id = data.get("device_id")
+    if not device_id:
+        return
     rooms = data.get("rooms_saved")
     if not device_id or not rooms:
         return
@@ -32,6 +34,9 @@ def handle_rooms_response(data):
 @app.route("/get-rooms/<device_id>")
 def get_rooms(device_id):
     # Ask ESP32 for rooms
+    if not device_id:
+        return
+    
     socketio.emit("get_rooms", {"request": True}, room=device_id)
 
     # Wait briefly for ESP32 to respond
@@ -47,6 +52,8 @@ def get_rooms(device_id):
 @socketio.on("relay_states_response")
 def handle_relay_states_response(data):
     device_id = data.get("device_id")
+    if not device_id:
+        return
     relay_states = data.get("relay_states")
     rooms_saved = data.get("rooms_saved")
     if not device_id or not relay_states:
@@ -60,6 +67,9 @@ def handle_relay_states_response(data):
 
 @app.route("/get-relay-states/<device_id>")
 def get_relay_states(device_id):
+    if not device_id:
+        return
+    
     socketio.emit("get-relay-states", {"request": True}, room=device_id)
 
     import time
@@ -76,6 +86,8 @@ def get_relay_states(device_id):
 @app.route("/save-rooms/<device_id>", methods=["POST"])
 def save_rooms(device_id):
     data = request.get_json()
+    if not device_id:
+        return
     rooms = data.get("rooms", "")
     
     # If rooms is a list, join to comma-separated string
