@@ -11,6 +11,7 @@ CORS(app, resources={r"/*":{"origins":"*"}})
 socketio = SocketIO(
     app, 
     cors_allowed_origins="*", 
+    async_mode="threading"
     )
 
 @app.route("/")
@@ -56,8 +57,6 @@ def handle_relay_states_response(data):
         return
     relay_states = data.get("relay_states")
     rooms_saved = data.get("rooms_saved")
-    if not device_id or not relay_states:
-        return
     relay_states_cache[device_id] = relay_states
     rooms_cache[device_id] = rooms_saved
     emit("hardware_online", room=device_id)
