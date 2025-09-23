@@ -11,6 +11,7 @@ CORS(app, resources={r"/*":{"origins":"*"}})
 socketio = SocketIO(
     app, 
     cors_allowed_origins="*",
+    async_mode="threading"
     )
 
 @app.route("/")
