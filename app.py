@@ -32,23 +32,6 @@ def handle_rooms_response(data):
     rooms_cache[device_id] = rooms
     # print(f"📦 Got rooms from {device_id}: {rooms}")
     
-@app.route("/get-rooms/<device_id>")
-def get_rooms(device_id):
-    # Ask ESP32 for rooms
-    if not device_id:
-        return
-    
-    socketio.emit("get_rooms", {"request": True}, room=device_id)
-
-    # Wait briefly for ESP32 to respond
-    import time
-    for _ in range(100):  # wait up to 1s
-        if device_id in rooms_cache:
-            return jsonify({"rooms_saved": rooms_cache[device_id]})
-        socketio.sleep(0.1)
-    
-    return jsonify({"error": "device not responding"}), 504
-
 # Event: ESP32 sends relay states back
 @socketio.on("relay_states_response")
 def handle_relay_states_response(data):
@@ -73,7 +56,7 @@ def get_relay_states(device_id):
 
     import time
     # wait briefly for hardware to respond
-    for _ in range(100):  # up to 1s
+    for _ in range(20):  # up to 1s
         if device_id in relay_states_cache:
             state_str = relay_states_cache[device_id]
             relay_dict = db_state_to_dict(state_str)
