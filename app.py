@@ -10,8 +10,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/*":{"origins":"*"}})
 socketio = SocketIO(
     app, 
-    cors_allowed_origins="*", 
-    async_mode="threading"
+    cors_allowed_origins="*",
     )
 
 @app.route("/")
@@ -184,4 +183,4 @@ def handle_toggle_ack(data):
     
 if __name__ == "__main__":
         
-    socketio.run(app, debug=True, port=int(os.environ.get("PORT", 5000)))
+    socketio.run(app, debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
